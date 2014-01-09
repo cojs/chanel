@@ -1,0 +1,32 @@
+{
+  "name": "parchan",
+  "version": "0.1.0",
+  "description": "Order-preserving channels for parallel execution",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cojs/parchan.git"
+  },
+  "author": {
+    "name": "Jonathan Ong",
+    "email": "me@jongleberry.com",
+    "url": "http://jongleberry.com",
+    "twitter": "https://twitter.com/jongleberry"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cojs/parchan/issues"
+  },
+  "devDependencies": {
+    "co": "~3.0",
+    "mocha": "~1.6",
+    "should": "~2.1",
+    "regenerator": "~0.3.4"
+  },
+  "engines": {
+    "node": ">= 0.11.3"
+  },
+  "homepage": "https://github.com/cojs/parchan"
+}
