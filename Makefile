@@ -9,8 +9,6 @@ test:
 
 build:
 	@mkdir -p build
-	@$(BIN)regenerator \
-		--include-runtime \
-		lib/index.js > build/index.js
+	@$(BIN)regenerator lib/index.js > build/index.js
 
 .PHONY: test build

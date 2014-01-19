@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Order-preserving channels for parallel execution",
   "scripts": {
-    "test": "make test"
+    "test": "make test",
+    "prepublish": "make build"
   },
   "repository": {
     "type": "git",
@@ -19,10 +20,12 @@
   "bugs": {
     "url": "https://github.com/cojs/parchan/issues"
   },
+  "dependencies": {
+    "co": "^3.0.2"
+  },
   "devDependencies": {
-    "co": "~3.0",
-    "mocha": "~1.6",
-    "should": "~2.1",
+    "mocha": "^1.7.0",
+    "should": "^3.0.0",
     "regenerator": "~0.3.4"
   },
   "engines": {
