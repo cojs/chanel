@@ -3,8 +3,8 @@ var co = require('co')
 var parchan = require('./')
 
 describe('Parallel Channel', function () {
-  describe('when returning the output', function () {
-    it('should work', co(function* () {
+  describe('when discard=false', function () {
+    it('should return the results', co(function* () {
       var ch = parchan()
       var vals = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
@@ -16,7 +16,7 @@ describe('Parallel Channel', function () {
       results.should.eql(vals)
     }))
 
-    it('should work with errors', co(function* () {
+    it('should throw errors in order', co(function* () {
       var ch = parchan()
       ch.push(get(0))
       ch.push(get(1))
@@ -35,7 +35,7 @@ describe('Parallel Channel', function () {
       }
     }))
 
-    it('should work with concurrency', co(function* () {
+    it('should retain concurrency', co(function* () {
       var ch = parchan()
       ch.concurrency = 2
 
@@ -57,57 +57,58 @@ describe('Parallel Channel', function () {
       results.should.eql(vals)
     }))
 
-    it('should stop executing callbacks when an error occurs', co(function* () {
-      var ch = parchan()
-      ch.concurrency = 1
+    describe('when an error occurs', function () {
+      it('should stop executing callbacks', co(function* () {
+        var ch = parchan()
+        ch.concurrency = 1
 
-      ch.push(get(0))
-      ch.push(get(1))
-      ch.push(get(2))
-      ch.push(error())
-      ch.push(get(4))
-      ch.push(get(5))
+        ch.push(get(0))
+        ch.push(get(1))
+        ch.push(get(2))
+        ch.push(error())
+        ch.push(get(4))
+        ch.push(get(5))
 
-      try {
-        yield* ch.flush()
-        throw new Error('wtf')
-      } catch (err) {
-        err.message.should.equal('boom')
-      }
+        try {
+          yield* ch.flush()
+          throw new Error('wtf')
+        } catch (err) {
+          err.message.should.equal('boom')
+        }
 
-      yield function (done) {
-        setTimeout(done, 10)
-      }
+        yield wait(20)
 
-      ;(4 in ch.results).should.not.be.ok
-      ;(5 in ch.results).should.not.be.ok
-    }))
+        ch.fns.length.should.equal(2)
+        ;(4 in ch.results).should.not.be.ok
+        ;(5 in ch.results).should.not.be.ok
+      }))
 
-    it('should continue executing callbacks when reading after an error', co(function* () {
-      var ch = parchan()
-      ch.concurrency = 1
+      it('should continue executing callbacks after reading', co(function* () {
+        var ch = parchan()
+        ch.concurrency = 1
 
-      ch.push(get(0))
-      ch.push(get(1))
-      ch.push(get(2))
-      ch.push(error())
-      ch.push(get(4))
-      ch.push(get(5))
+        ch.push(get(0))
+        ch.push(get(1))
+        ch.push(get(2))
+        ch.push(error())
+        ch.push(get(4))
+        ch.push(get(5))
 
-      try {
-        yield* ch.flush()
-        throw new Error('wtf')
-      } catch (err) {
-        err.message.should.equal('boom')
-      }
+        try {
+          yield* ch.flush()
+          throw new Error('wtf')
+        } catch (err) {
+          err.message.should.equal('boom')
+        }
 
-      4..should.equal(yield* ch.read())
-      5..should.equal(yield* ch.read())
-    }))
+        var res = yield* ch.flush()
+        res.should.eql([4, 5])
+      }))
+    })
   })
 
-  describe('when not returning the output', function () {
-    it('should work', co(function* () {
+  describe('when discard=false', function () {
+    it('should not return the results', co(function* () {
       var ch = parchan({
         discard: true
       })
@@ -117,10 +118,11 @@ describe('Parallel Channel', function () {
         ch.push(get(i))
       })
 
-      yield* ch.flush()
+      var res = yield* ch.flush()
+      ;(res == null).should.be.ok
     }))
 
-    it('should work with errors', co(function* () {
+    it('should throw errors', co(function* () {
       var ch = parchan()
       ch.discard = true
       ch.push(get(0))
@@ -136,7 +138,7 @@ describe('Parallel Channel', function () {
       }
     }))
 
-    it('should work with concurrency', co(function* () {
+    it('should retain concurrency', co(function* () {
       var ch = parchan()
       ch.concurrency = 2
       ch.discard = true
@@ -157,6 +159,54 @@ describe('Parallel Channel', function () {
 
       yield* ch.flush()
     }))
+
+    describe('when an error occurs', function () {
+      it('should stop executing callbacks', co(function* () {
+        var ch = parchan()
+        ch.concurrency = 1
+        ch.discard = true
+
+        ch.push(get(0))
+        ch.push(get(1))
+        ch.push(get(2))
+        ch.push(error())
+        ch.push(get(4))
+        ch.push(get(5))
+
+        try {
+          yield* ch.flush()
+          throw new Error('wtf')
+        } catch (err) {
+          err.message.should.equal('boom')
+        }
+
+        yield wait(20)
+        ch.fns.length.should.equal(2)
+      }))
+
+      it('should continue executing callbacks after reading', co(function* () {
+        var ch = parchan()
+        ch.concurrency = 1
+        ch.discard = true
+
+        ch.push(get(0))
+        ch.push(get(1))
+        ch.push(get(2))
+        ch.push(error())
+        ch.push(get(4))
+        ch.push(get(5))
+
+        try {
+          yield* ch.flush()
+          throw new Error('wtf')
+        } catch (err) {
+          err.message.should.equal('boom')
+        }
+
+        var res = yield* ch.flush()
+        ch.fns.length.should.equal(0)
+      }))
+    })
   })
 
   describe('when the channel is opened', function () {
@@ -166,9 +216,7 @@ describe('Parallel Channel', function () {
       ch.open()
 
       co(function* () {
-        yield function (done) {
-          setTimeout(done, 10)
-        }
+        yield wait(10)
         ch.push(get(0))
         ch.push(get(1))
         ch.push(get(2))
@@ -182,6 +230,12 @@ describe('Parallel Channel', function () {
     })
   })
 })
+
+function wait(ms) {
+  return function (done) {
+    setTimeout(done, ms)
+  }
+}
 
 function get(x) {
   return function (done) {
