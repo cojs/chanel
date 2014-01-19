@@ -103,6 +103,26 @@ describe('Parallel Channel', function () {
     4..should.equal(yield* ch.read())
     5..should.equal(yield* ch.read())
   }))
+
+  it('should not flush until the channel is closed', function (done) {
+    var ch = parchan()
+    ch.concurrency = 1
+
+    co(function* () {
+      yield function (done) {
+        setTimeout(done, 10)
+      }
+      ch.push(get(0))
+      ch.push(get(1))
+      ch.push(get(2))
+      ch.push(null)
+    })()
+
+    co(function* () {
+      var res = yield* ch.flush()
+      res.should.eql([0, 1, 2])
+    })(done)
+  })
 })
 
 function get(x) {

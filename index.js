@@ -14,6 +14,7 @@ function Channel(options) {
   EventEmitter.call(this, options)
 
   this.concurrency = options.concurrency || Infinity
+  this.closed = !options.close
 
   this.fns = []
   this.results = []
@@ -26,12 +27,16 @@ function Channel(options) {
   this.reading = true
 }
 
+// you can push to the channel when someone is reading from it
+// and the number of callbacks executing is lower than the concurrency
 Object.defineProperty(Channel.prototype, 'pushable', {
   get: function () {
-    return this.reading && this.pending < this.concurrency
+    return this.reading
+      && this.pending < this.concurrency
   }
 })
 
+// finished callbacks / total # of callbacks
 Object.defineProperty(Channel.prototype, 'progress', {
   get: function () {
     var total = this.fns.length
@@ -50,21 +55,35 @@ function valid() {
   return true
 }
 
+// totally number of callbacks pushed
 Object.defineProperty(Channel.prototype, 'length', {
   get: function () {
     return this.fns.length
   }
 })
 
+// # of results to be read
+// they may or may not have been executed already
 Object.defineProperty(Channel.prototype, 'queue', {
   get: function () {
     return this.fns.length - this.resultIndex
   }
 })
 
+// if all the results have been read,
+// ended = true
 Object.defineProperty(Channel.prototype, 'ended', {
   get: function () {
     return this.fns.length !== this.resultIndex
+  }
+})
+
+// you can continue reading from a channel if
+// there are results in the queue
+// or the channel is still open.
+Object.defineProperty(Channel.prototype, 'readable', {
+  get: function () {
+    return this.queue || !this.closed
   }
 })
 
@@ -104,6 +123,10 @@ Channel.prototype.next = function () {
 
 // push a function
 Channel.prototype.push = function (fn) {
+  if (fn == null) {
+    this.closed = true
+    return this.fns.length
+  }
   if (typeof fn !== 'function')
     throw new TypeError('you may only push functions')
 
@@ -117,6 +140,10 @@ Channel.prototype.read = function* () {
   // continue executing callbacks if no errors occured
   if (!this.reading && !this.errors)
     this.reading = true
+  // return nothing if the channel is closed
+  // and there is no more results to read
+  if (this.ended && this.closed)
+    return
 
   // return the next pending result
   var index = this.resultIndex
@@ -152,7 +179,9 @@ Channel.prototype.read = function* () {
 
 Channel.prototype.flush = function* () {
   var results = []
-  while (this.queue)
+  while (this.readable) {
+    console.log('reading')
     results.push(yield* this.read())
+  }
   return results
 }
