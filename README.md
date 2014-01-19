@@ -1,6 +1,6 @@
 # parchan [![Build Status](https://travis-ci.org/cojs/parchan.png)](https://travis-ci.org/cojs/parchan)
 
-Order preserving array-like channel. Used to execute functions in parallel with concurrency and optional "streaming".
+Order preserving array-like channel. Used to execute functions in parallel with concurrency and stream-like functionality. Think `batch` or `async.queue`, but streaming!
 
 ```js
 var parchan = require('parchan')
@@ -26,10 +26,9 @@ co(function* () {
     })
   })
 
-  while (!ch.ended) {
+  while (ch.readable) {
     // write each file to stdout in order
-    var res = yield* ch.read()
-    process.stdout.write(res)
+    process.stdout.write(yield* ch.read())
   }
 
   // exit the process
@@ -48,6 +47,7 @@ This is very similar to other libraries like [batch](https://github.com/visionme
 
 - You can push functions and pull data while the callbacks are in progress
 - You don't have to wait until all the callbacks are finished for you to start reading data
+- You don't have to wait until you define all or even any callbacks to begin reading
 - Data will always be returned in the correct order
 
 The general use-case is concatenating files (as the example above).
@@ -57,38 +57,36 @@ The general use-case is concatenating files (as the example above).
 ### var ch = archan([options])
 
 - `concurrency` <Infinity> - maximum number of concurrent callbacks
+- `discard` <false> - discard the results of the callbacks. Will only return errors, if any, if `true`.
+- `closed` or `open` - by default, the channel is closed, meaning `yield* ch.flush()` will flush only the remaining callbacks. If opened, `yield* ch.flush()` will not yield until the channel is closed.
 
-### var length = ch.push(fn)
+### ch.push(fn)
 
-Push a thunk. Returns the total length of the channel (total number of functions pushed).
+Push a thunk to the channel.
 
 ### var result = yield* ch.read()
 
-Pull the next value in the channel.
+Pull the next value in the channel. This waits for the next result in the channel indefinitely whether or not the channel is closed.
 
 If an error was thrown, this function will throw that error, and no more additional callbacks will be executed. To continue executing callbacks, just `.read()` again.
 
-Errors will be thrown in the correct order.
+If `this.out === true`, errors will be thrown in the correct order. Otherwise, errors will be thrown ASAP.
 
 ### var results = yield* ch.flush()
 
-Return all the pending values in the channel.
-
-### ch.length
-
-Total number of functions in the channel.
-
-### ch.progress
-
-Fraction of functions in the channel that are done.
+Waits until all the pending callbacks are completed. Unless you are discarding data, all the results of the callbacks will be returned as `results`.
 
 ### ch.queue
 
 Number of results waiting to be read.
 
-### ch.ended
+### ch.readable
 
-When all the results of the channel have been read.
+If you can `yield* ch.read()`. Otherwise, a `yield* ch.read()` call may never be yielded.
+
+### ch.closed
+
+Whether the channel is closed. `true` by default.
 
 ## License
 

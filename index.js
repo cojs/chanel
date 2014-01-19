@@ -14,6 +14,9 @@ function Channel(options) {
   EventEmitter.call(this, options)
 
   this.concurrency = options.concurrency || Infinity
+  // closed by default
+  this.closed = !(options.closed === false || options.open)
+  this.discard = options.discard
 
   this.fns = []
   this.results = []
@@ -32,127 +35,129 @@ Object.defineProperty(Channel.prototype, 'pushable', {
   }
 })
 
-Object.defineProperty(Channel.prototype, 'progress', {
-  get: function () {
-    var total = this.fns.length
-    // results already read
-    var done = this.resultIndex
-    // results not yet read
-    var pending = this.results
-      .slice(this.resultIndex)
-      .filter(valid).length
-
-    return (done + pending) / total
-  }
-})
-
-function valid() {
-  return true
-}
-
-Object.defineProperty(Channel.prototype, 'length', {
-  get: function () {
-    return this.fns.length
-  }
-})
-
+// read queue
 Object.defineProperty(Channel.prototype, 'queue', {
   get: function () {
-    return this.fns.length - this.resultIndex
+    return this.results.length + this.fns.length
   }
 })
 
-Object.defineProperty(Channel.prototype, 'ended', {
+// you can read from a channel if there's a read queue or if this channel is not closed
+Object.defineProperty(Channel.prototype, 'readable', {
   get: function () {
-    return this.fns.length !== this.resultIndex
+    return this.queue || !this.closed
   }
 })
 
-// call the next function
-Channel.prototype.call = function () {
-  // no more to call
-  if (this.fnIndex === this.fns.length)
-    return
-
-  var self = this
-  var index = this.fnIndex++
-  var fn = this.fns[index]
-  this.pending++
-  fn(function (err, res) {
-    self.pending--
-    delete self.fns[index]
-
-    if (err) {
-      self.reading = false
-      self.errors++
-      self.results[index] = err
-    } else {
-      self.results[index] = arguments.length > 2
-        ? [].slice.call(arguments, 1)
-        : res
-    }
-    self.emit(String(index))
-    self.next()
-  })
+Channel.prototype.open = function () {
+  this.closed = false
+  return this
 }
 
-// if we can call the next function, do so
-Channel.prototype.next = function () {
-  if (this.pushable)
-    this.call()
+Channel.prototype.close = function () {
+  this.closed = true
+  return this
 }
 
-// push a function
+/**
+ * Push a function to the channel.
+ * If `null`, just means closing the channel.
+ */
+
 Channel.prototype.push = function (fn) {
+  if (fn == null) return this.close()
+
   if (typeof fn !== 'function')
     throw new TypeError('you may only push functions')
 
-  var length = this.fns.push(fn)
-  this.results.length++
-  this.next()
-  return length
+  this.fns.push(fn)
+  if (!this.discard) this.results.length++
+  this.call()
+return this
+}
+
+Channel.prototype.call = function () {
+  if (!this.pushable) return
+  if (!this.fns.length) return
+
+  var fn = this.fns.shift()
+  var index = this.fnIndex++
+  this.pending++
+
+  var self = this
+  fn(function (err, res) {
+    self.pending--
+    if (err) {
+      self.reading = false
+      self.errors++
+      if (self.discard) {
+        self.results.push(err)
+      } else {
+        self.results[index - self.resultIndex] = err
+      }
+    } else if (!self.discard) {
+      self.results[index - self.resultIndex] = arguments.length > 2
+        ? [].slice.call(arguments, 1)
+        : res
+    }
+
+    self.emit(String(index))
+    self.emit('callback')
+    self.call()
+  })
 }
 
 Channel.prototype.read = function* () {
+  var self = this
   // continue executing callbacks if no errors occured
-  if (!this.reading && !this.errors)
-    this.reading = true
+  if (!this.reading && !this.errors) this.reading = true
 
-  // return the next pending result
-  var index = this.resultIndex
-  // `in` because these arrays have holes!
-  if (index in this.results) {
-    this.resultIndex++
-    var res = this.results[index]
-    delete this.results[index]
-    if (res instanceof Error) {
-      this.errors--
-      throw res
+  if (!self.discard) {
+    if (self.results.length && 0 in self.results) {
+      var res = self.results.shift()
+      self.resultIndex++
+      if (res instanceof Error) {
+        self.errors--
+        throw res
+      }
+      return res
     }
-    return res
+  } else if (self.results.length) {
+    // these can only be errors
+    self.errors--
+    throw self.results.shift()
   }
 
-  // wait for the result of `index`
-  // i don't really like using emitters here but whatever
-  var self = this
+  // wait for the next result in the queue
   return yield function (done) {
-    self.once(String(index), function () {
-      self.resultIndex++
-      var res = self.results[index]
-      delete self.results[index]
-      if (res instanceof Error) {
-        this.errors--
-        done(res)
+    self.once(self.discard ?  'callback' : String(self.resultIndex), function () {
+      if (!self.discard) {
+        var res = self.results.shift()
+        self.resultIndex++
+        if (res instanceof Error) {
+          self.errors--
+          done(res)
+        } else {
+          done(null, res)
+        }
+      } else if (self.results.length) {
+        // these can only be errors
+        self.errors--
+        done(self.results.shift())
       } else {
-        done(null, res)
+        done()
       }
     })
   }
 }
 
 Channel.prototype.flush = function* () {
+  if (this.discard) {
+    while (this.readable) yield* this.read()
+    return
+  }
+
   var results = []
-  while (this.queue)
-    results.push(yield* this.read())
+  while (this.readable) results.push(yield* this.read())
   return results
 }

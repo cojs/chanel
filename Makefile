@@ -4,7 +4,8 @@ test:
 	@$(BIN)mocha \
 		--harmony \
 		--require should \
-		--reporter spec
+		--reporter spec \
+		--bail
 
 build:
 	@mkdir -p build
