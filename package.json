@@ -20,10 +20,8 @@
   "bugs": {
     "url": "https://github.com/cojs/chanel/issues"
   },
-  "dependencies": {
-    "co": "^3.0.2"
-  },
   "devDependencies": {
+    "co": "^3.0.2",
     "mocha": "^1.7.0",
     "should": "^3.0.0",
     "regenerator": "~0.3.4"
