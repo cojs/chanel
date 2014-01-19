@@ -1,6 +1,6 @@
 {
   "name": "parchan",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Order-preserving channels for parallel execution",
   "scripts": {
     "test": "make test"

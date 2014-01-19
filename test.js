@@ -109,7 +109,7 @@ describe('Parallel Channel', function () {
   describe('when not returning the output', function () {
     it('should work', co(function* () {
       var ch = parchan({
-        out: false
+        discard: true
       })
       var vals = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
@@ -122,6 +122,7 @@ describe('Parallel Channel', function () {
 
     it('should work with errors', co(function* () {
       var ch = parchan()
+      ch.discard = true
       ch.push(get(0))
       ch.push(get(1))
       ch.push(get(2))
@@ -138,6 +139,7 @@ describe('Parallel Channel', function () {
     it('should work with concurrency', co(function* () {
       var ch = parchan()
       ch.concurrency = 2
+      ch.discard = true
 
       var vals = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
       var pending = 0

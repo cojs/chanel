@@ -38,7 +38,9 @@ Object.defineProperty(Channel.prototype, 'pushable', {
 // read queue
 Object.defineProperty(Channel.prototype, 'queue', {
   get: function () {
-    return this.results.length + this.fns.length
+    var queue = this.results.length + this.fns.length
+    if (this.discard) queue += this.pending
+    return queue
   }
 })
 
