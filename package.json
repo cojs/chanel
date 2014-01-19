@@ -1,14 +1,14 @@
 {
-  "name": "parchan",
+  "name": "chanel",
   "version": "1.0.0",
-  "description": "Order-preserving channels for parallel execution",
+  "description": "Channel-based control-flow for parallel tasks with concurrency control",
   "scripts": {
     "test": "make test",
     "prepublish": "make build"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cojs/parchan.git"
+    "url": "https://github.com/cojs/chanel.git"
   },
   "author": {
     "name": "Jonathan Ong",
@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cojs/parchan/issues"
+    "url": "https://github.com/cojs/chanel/issues"
   },
   "dependencies": {
     "co": "^3.0.2"
@@ -31,5 +31,5 @@
   "engines": {
     "node": ">= 0.11.3"
   },
-  "homepage": "https://github.com/cojs/parchan"
+  "homepage": "https://github.com/cojs/chanel"
 }

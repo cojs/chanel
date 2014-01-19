@@ -1,12 +1,23 @@
-# parchan [![Build Status](https://travis-ci.org/cojs/parchan.png)](https://travis-ci.org/cojs/parchan)
+# chanel [![Build Status](https://travis-ci.org/cojs/chanel.png)](https://travis-ci.org/cojs/chanel)
 
-Order preserving array-like channel. Used to execute functions in parallel with concurrency and stream-like functionality. Think `batch` or `async.queue`, but streaming!
+Javascript channels using [co](https://github.com/visionmedia/co) . You can consider this a streaming `async.parallel` with concurrency control.
+
+This is very similar to other libraries like [batch](https://github.com/visionmedia/batch) except:
+
+- You can push jobs and pull data while the callbacks are in progress
+- You don't have to wait until all the callbacks are finished for you to start reading data
+- You don't have to wait until you define all or even any callbacks to begin reading
+- Concurrency control
+- Data will always be returned in the correct order
+- You can discard data
+
+The general use-case is concatenating files (as the example above).
 
 ```js
-var parchan = require('parchan')
+var chanel = require('chanel')
 
 co(function* () {
-  var ch = parchan()
+  var ch = chanel()
   // only two file descriptors open at a time
   ch.concurrency = 2
 
@@ -31,9 +42,9 @@ co(function* () {
     process.stdout.write(yield* ch.read())
   }
 
-  // exit the process
+  // exit the process (unnecessary)
   process.exit()
-})
+})()
 ```
 
 or concatenate them all with:
@@ -43,21 +54,14 @@ var results = yield* ch.flush()
 var string = results.join('')
 ```
 
-This is very similar to other libraries like [batch](https://github.com/visionmedia/batch) except:
-
-- You can push functions and pull data while the callbacks are in progress
-- You don't have to wait until all the callbacks are finished for you to start reading data
-- You don't have to wait until you define all or even any callbacks to begin reading
-- Data will always be returned in the correct order
-
-The general use-case is concatenating files (as the example above).
+For this specific example, you're better off using [combine-streams](https://github.com/stream-utils/combine-streams), but there are use-cases where you need to buffer the entire file such as build systems with compilation steps.
 
 ## API
 
-### var ch = archan([options])
+### var ch = chanel([options])
 
 - `concurrency` <Infinity> - maximum number of concurrent callbacks
-- `discard` <false> - discard the results of the callbacks. Will only return errors, if any, if `true`.
+- `discard` <false> - discard the results of the callbacks. Will only throw errors, if any, if `true`.
 - `closed` or `open` - by default, the channel is closed, meaning `yield* ch.flush()` will flush only the remaining callbacks. If opened, `yield* ch.flush()` will not yield until the channel is closed.
 
 ### ch.push(fn)
@@ -70,11 +74,11 @@ Pull the next value in the channel. This waits for the next result in the channe
 
 If an error was thrown, this function will throw that error, and no more additional callbacks will be executed. To continue executing callbacks, just `.read()` again.
 
-If `this.out === true`, errors will be thrown in the correct order. Otherwise, errors will be thrown ASAP.
+If `this.discard === false`, errors will be thrown in the correct order. Otherwise, errors will be thrown ASAP.
 
 ### var results = yield* ch.flush()
 
-Waits until all the pending callbacks are completed. Unless you are discarding data, all the results of the callbacks will be returned as `results`.
+Waits until all the pending callbacks are completed. Unless you are discarding data, all the results of the callbacks will be returned as the array `results`.
 
 ### ch.queue
 
@@ -82,7 +86,7 @@ Number of results waiting to be read.
 
 ### ch.readable
 
-If you can `yield* ch.read()`. Otherwise, a `yield* ch.read()` call may never be yielded.
+A boolean to check whether you can `yield* ch.read()`. Otherwise, a `yield* ch.read()` call may never be yielded.
 
 ### ch.closed
 

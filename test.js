@@ -1,11 +1,11 @@
 var co = require('co')
 
-var parchan = require('./')
+var chanel = require('./')
 
 describe('Parallel Channel', function () {
   describe('when discard=false', function () {
     it('should return the results', co(function* () {
-      var ch = parchan()
+      var ch = chanel()
       var vals = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
       vals.forEach(function (i) {
@@ -17,7 +17,7 @@ describe('Parallel Channel', function () {
     }))
 
     it('should throw errors in order', co(function* () {
-      var ch = parchan()
+      var ch = chanel()
       ch.push(get(0))
       ch.push(get(1))
       ch.push(get(2))
@@ -36,7 +36,7 @@ describe('Parallel Channel', function () {
     }))
 
     it('should retain concurrency', co(function* () {
-      var ch = parchan()
+      var ch = chanel()
       ch.concurrency = 2
 
       var vals = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -59,7 +59,7 @@ describe('Parallel Channel', function () {
 
     describe('when an error occurs', function () {
       it('should stop executing callbacks', co(function* () {
-        var ch = parchan()
+        var ch = chanel()
         ch.concurrency = 1
 
         ch.push(get(0))
@@ -84,7 +84,7 @@ describe('Parallel Channel', function () {
       }))
 
       it('should continue executing callbacks after reading', co(function* () {
-        var ch = parchan()
+        var ch = chanel()
         ch.concurrency = 1
 
         ch.push(get(0))
@@ -109,7 +109,7 @@ describe('Parallel Channel', function () {
 
   describe('when discard=false', function () {
     it('should not return the results', co(function* () {
-      var ch = parchan({
+      var ch = chanel({
         discard: true
       })
       var vals = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -123,7 +123,7 @@ describe('Parallel Channel', function () {
     }))
 
     it('should throw errors', co(function* () {
-      var ch = parchan()
+      var ch = chanel()
       ch.discard = true
       ch.push(get(0))
       ch.push(get(1))
@@ -139,7 +139,7 @@ describe('Parallel Channel', function () {
     }))
 
     it('should retain concurrency', co(function* () {
-      var ch = parchan()
+      var ch = chanel()
       ch.concurrency = 2
       ch.discard = true
 
@@ -162,7 +162,7 @@ describe('Parallel Channel', function () {
 
     describe('when an error occurs', function () {
       it('should stop executing callbacks', co(function* () {
-        var ch = parchan()
+        var ch = chanel()
         ch.concurrency = 1
         ch.discard = true
 
@@ -185,7 +185,7 @@ describe('Parallel Channel', function () {
       }))
 
       it('should continue executing callbacks after reading', co(function* () {
-        var ch = parchan()
+        var ch = chanel()
         ch.concurrency = 1
         ch.discard = true
 
@@ -211,7 +211,7 @@ describe('Parallel Channel', function () {
 
   describe('when the channel is opened', function () {
     it('should wait indefinitely for the next result', function (done) {
-      var ch = parchan()
+      var ch = chanel()
       ch.concurrency = 1
       ch.open()
 
