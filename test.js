@@ -224,8 +224,22 @@ describe('Parallel Channel', function () {
       })()
 
       co(function* () {
+        if (!(yield* ch.pushed())) return
         var res = yield* ch.flush()
         res.should.eql([0, 1, 2])
+      })(done)
+    })
+
+    it('should work with empty channels', function (done) {
+      var ch = chanel()
+      ch.open()
+      setTimeout(function () {
+        ch.close()
+      }, 10)
+
+      co(function* () {
+        if (!(yield* ch.pushed())) return
+        yield* ch.flush()
       })(done)
     })
   })
