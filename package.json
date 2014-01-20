@@ -1,6 +1,6 @@
 {
   "name": "chanel",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Channel-based control-flow for parallel tasks with concurrency control",
   "scripts": {
     "test": "make test",
