@@ -242,6 +242,24 @@ describe('Parallel Channel', function () {
         yield* ch.flush()
       })(done)
     })
+
+    it('should yield when closed', function (done) {
+      var ch = chanel()
+      ch.open()
+      setImmediate(function () {
+        ch.push(get(0))
+        ch.push(get(1))
+      })
+
+      setTimeout(function () {
+        ch.close()
+      }, 20)
+
+      co(function* () {
+        if (!(yield* ch.pushed())) return
+        yield* ch.flush()
+      })(done)
+    })
   })
 })
 
