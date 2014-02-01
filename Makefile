@@ -1,14 +1,11 @@
 BIN = ./node_modules/.bin/
+NODE ?= gnode
 
 test:
-	@$(BIN)mocha \
-		--harmony \
+	@$(NODE) $(BIN)mocha \
+		--harmony-generators \
 		--require should \
 		--reporter spec \
 		--bail
 
-build:
-	@mkdir -p build
-	@$(BIN)regenerator lib/index.js > build/index.js
-
-.PHONY: test build
+.PHONY: test

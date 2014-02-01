@@ -3,8 +3,7 @@
   "version": "1.0.3",
   "description": "Channel-based control-flow for parallel tasks with concurrency control",
   "scripts": {
-    "test": "make test",
-    "prepublish": "make build"
+    "test": "NODE=gnode make test"
   },
   "repository": {
     "type": "git",
@@ -24,7 +23,7 @@
     "co": "^3.0.2",
     "mocha": "^1.7.0",
     "should": "^3.0.0",
-    "regenerator": "~0.3.4"
+    "gnode": "*"
   },
   "engines": {
     "node": ">= 0.11.3"
