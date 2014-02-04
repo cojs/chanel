@@ -23,7 +23,7 @@
     "co": "^3.0.2",
     "mocha": "^1.7.0",
     "should": "^3.0.0",
-    "regenerator": "~0.3.8",
+    "regenerator": "~0.3.9",
     "gnode": "*"
   },
   "scripts": {

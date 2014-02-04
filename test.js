@@ -107,7 +107,7 @@ describe('Parallel Channel', function () {
     })
   })
 
-  describe('when discard=false', function () {
+  describe('when discard=true', function () {
     it('should not return the results', co(function* () {
       var ch = chanel({
         discard: true
