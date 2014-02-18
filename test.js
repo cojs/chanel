@@ -12,7 +12,7 @@ describe('Parallel Channel', function () {
         ch.push(get(i))
       })
 
-      var results = yield* ch.flush()
+      var results = yield ch(true)
       results.should.eql(vals)
     }))
 
@@ -23,12 +23,12 @@ describe('Parallel Channel', function () {
       ch.push(get(2))
       ch.push(error())
 
-      0..should.equal(yield* ch.read())
-      1..should.equal(yield* ch.read())
-      2..should.equal(yield* ch.read())
+      0..should.equal(yield ch)
+      1..should.equal(yield ch)
+      2..should.equal(yield ch)
 
       try {
-        yield* ch.read()
+        yield ch
         throw new Error('WTF')
       } catch (err) {
         err.message.should.equal('boom')
@@ -53,7 +53,7 @@ describe('Parallel Channel', function () {
         })
       })
 
-      var results = yield* ch.flush()
+      var results = yield ch(true)
       results.should.eql(vals)
     }))
 
@@ -70,7 +70,7 @@ describe('Parallel Channel', function () {
         ch.push(get(5))
 
         try {
-          yield* ch.flush()
+          yield ch(true)
           throw new Error('wtf')
         } catch (err) {
           err.message.should.equal('boom')
@@ -95,13 +95,13 @@ describe('Parallel Channel', function () {
         ch.push(get(5))
 
         try {
-          yield* ch.flush()
+          yield ch(true)
           throw new Error('wtf')
         } catch (err) {
           err.message.should.equal('boom')
         }
 
-        var res = yield* ch.flush()
+        var res = yield ch(true)
         res.should.eql([4, 5])
       }))
     })
@@ -118,7 +118,7 @@ describe('Parallel Channel', function () {
         ch.push(get(i))
       })
 
-      var res = yield* ch.flush()
+      var res = yield ch(true)
       ;(res == null).should.be.ok
     }))
 
@@ -131,7 +131,7 @@ describe('Parallel Channel', function () {
       ch.push(error())
 
       try {
-        yield* ch.flush()
+        yield ch(true)
         throw new Error('WTF')
       } catch (err) {
         err.message.should.equal('boom')
@@ -157,7 +157,7 @@ describe('Parallel Channel', function () {
         })
       })
 
-      yield* ch.flush()
+      yield ch(true)
     }))
 
     describe('when an error occurs', function () {
@@ -174,7 +174,7 @@ describe('Parallel Channel', function () {
         ch.push(get(5))
 
         try {
-          yield* ch.flush()
+          yield ch(true)
           throw new Error('wtf')
         } catch (err) {
           err.message.should.equal('boom')
@@ -197,13 +197,13 @@ describe('Parallel Channel', function () {
         ch.push(get(5))
 
         try {
-          yield* ch.flush()
+          yield ch(true)
           throw new Error('wtf')
         } catch (err) {
           err.message.should.equal('boom')
         }
 
-        var res = yield* ch.flush()
+        var res = yield ch(true)
         ch.fns.length.should.equal(0)
       }))
     })
@@ -224,8 +224,8 @@ describe('Parallel Channel', function () {
       })()
 
       co(function* () {
-        if (!(yield* ch.pushed())) return
-        var res = yield* ch.flush()
+        if (!(yield ch.pushed)) return
+        var res = yield ch(true)
         res.should.eql([0, 1, 2])
       })(done)
     })
@@ -238,8 +238,8 @@ describe('Parallel Channel', function () {
       }, 10)
 
       co(function* () {
-        if (!(yield* ch.pushed())) return
-        yield* ch.flush()
+        if (!(yield ch.pushed)) return
+        yield ch(true)
       })(done)
     })
 
@@ -256,8 +256,8 @@ describe('Parallel Channel', function () {
       }, 20)
 
       co(function* () {
-        if (!(yield* ch.pushed())) return
-        yield* ch.flush()
+        if (!(yield ch.pushed)) return
+        yield ch(true)
       })(done)
     })
   })
