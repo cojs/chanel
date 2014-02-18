@@ -17,7 +17,8 @@
     "url": "https://github.com/cojs/chanel/issues"
   },
   "dependencies": {
-    "generator-supported": "~0.0.1"
+    "generator-supported": "~0.0.1",
+    "to-descriptor": "^1.0.0"
   },
   "devDependencies": {
     "co": "^3.0.2",
