@@ -16,6 +16,7 @@
   "bugs": {
     "url": "https://github.com/cojs/chanel/issues"
   },
+  "main": "lib/index.js",
   "dependencies": {
     "generator-supported": "~0.0.1",
     "to-descriptor": "^1.0.0"
@@ -24,15 +25,10 @@
     "co": "^3.0.2",
     "mocha": "^1.7.0",
     "should": "^3.0.0",
-    "regenerator": "*",
     "gnode": "*"
   },
   "scripts": {
-    "test": "NODE=gnode make test",
-    "prepublish": "make clean build"
-  },
-  "engines": {
-    "node": ">= 0.11.3"
+    "test": "NODE=gnode make test"
   },
   "homepage": "https://github.com/cojs/chanel"
 }

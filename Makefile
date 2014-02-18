@@ -17,6 +17,7 @@ test:
 	@$(NODE) $(BIN)mocha \
 		--harmony-generators \
 		--require should \
-		--reporter spec
+		--reporter spec \
+		--bail
 
 .PHONY: test clean
