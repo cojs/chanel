@@ -4,8 +4,8 @@ Javascript concurrency and order-preserving channels. You can consider this a st
 
 This is very similar to other libraries like [batch](https://github.com/visionmedia/batch) and [co-queue](https://github.com/segmentio/co-queue) except:
 
-- You can push jobs and pull data while the callbacks are in progress
-- You don't have to wait until all the callbacks are finished for you to start reading data
+- You can push jobs and pull data while tasks are in progress
+- You don't have to wait until all the callbacks are finished to start reading data
 - You don't have to wait until you define all or even any callbacks to begin reading
 - Concurrency control (`Infinity` by default)
 - Data will always be returned in the correct order

@@ -1,6 +1,6 @@
 {
   "name": "chanel",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "description": "Channel-based control-flow for parallel tasks with concurrency control",
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
     "co": "^3.0.2",
     "mocha": "^1.7.0",
     "should": "^3.0.0",
-    "regenerator": "~0.3.9",
+    "regenerator": "*",
     "gnode": "*"
   },
   "scripts": {
