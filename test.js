@@ -4,6 +4,11 @@ var chanel = require('./')
 
 describe('Parallel Channel', function () {
   describe('when discard=false', function () {
+    it('should flush empty streams', co(function* () {
+      var ch = chanel()
+      yield ch(true)
+    }))
+
     it('should return the results', co(function* () {
       var ch = chanel()
       var vals = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -108,6 +113,13 @@ describe('Parallel Channel', function () {
   })
 
   describe('when discard=true', function () {
+    it('should flush empty streams', co(function* () {
+      var ch = chanel({
+        discard: true
+      })
+      yield ch(true)
+    }))
+
     it('should not return the results', co(function* () {
       var ch = chanel({
         discard: true
