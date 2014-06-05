@@ -1,6 +1,6 @@
 var co = require('co')
 
-var chanel = require('./')
+var chanel = require('./../lib/index')
 
 describe('Parallel Channel', function () {
   describe('when discard=false', function () {
