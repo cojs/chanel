@@ -2,10 +2,7 @@
   "name": "chanel",
   "version": "2.0.2",
   "description": "Channel-based control-flow for parallel tasks with concurrency control",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cojs/chanel.git"
-  },
+  "repository": "cojs/chanel",
   "author": {
     "name": "Jonathan Ong",
     "email": "me@jongleberry.com",
@@ -13,9 +10,6 @@
     "twitter": "https://twitter.com/jongleberry"
   },
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/cojs/chanel/issues"
-  },
   "main": "lib/index.js",
   "dependencies": {
     "co": "*",
@@ -29,6 +23,5 @@
   },
   "scripts": {
     "test": "NODE=gnode make test"
-  },
-  "homepage": "https://github.com/cojs/chanel"
+  }
 }
