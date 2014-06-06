@@ -69,3 +69,5 @@ test/*.2
 test/*/*.2
 test/*.mp4
 test/images/originalSideways.jpg.2
+
+/.idea

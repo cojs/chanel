@@ -18,11 +18,11 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "co": "*",
     "generator-supported": "~0.0.1",
     "to-descriptor": "^1.0.0"
   },
   "devDependencies": {
-    "co": "^3.0.2",
     "mocha": "^1.7.0",
     "should": "^3.0.0",
     "gnode": "*"
