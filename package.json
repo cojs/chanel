@@ -1,6 +1,6 @@
 {
   "name": "chanel",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Channel-based control-flow for parallel tasks with concurrency control",
   "repository": "cojs/chanel",
   "author": {
