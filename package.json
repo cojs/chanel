@@ -19,12 +19,13 @@
   "main": "lib/index.js",
   "dependencies": {
     "co": "*",
-    "generator-supported": "~0.0.1",
-    "to-descriptor": "^1.0.0"
+    "generator-supported": "*",
+    "to-descriptor": "*"
   },
   "devDependencies": {
-    "mocha": "^1.7.0",
-    "should": "^3.0.0",
+    "co-wait": "*",
+    "mocha": "*",
+    "should": "*",
     "gnode": "*"
   },
   "scripts": {
