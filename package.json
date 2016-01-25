@@ -19,7 +19,7 @@
   "devDependencies": {
     "co-wait": "*",
     "mocha": "*",
-    "should": "*",
+    "should": "8.2.0",
     "gnode": "*"
   },
   "scripts": {
