@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "co-wait": "*",
-    "mocha": "*",
+    "mocha": "2.4.1",
     "should": "*",
     "gnode": "*"
   },
